@@ -11,6 +11,19 @@
 # testing
 /coverage
 
+# skills
+
+.skills
+.agent
+.agents
+.claude
+.gemini
+.cursor
+.cursorignore
+.cursor/skills
+.cursor/agents
+
+
 # next.js
 /.next/
 /out/

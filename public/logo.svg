@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -20 405 190" width="405" height="190">
+  <g fill="#001B3D">
+    <!-- N -->
+    <rect x="0" y="0" width="22" height="150" />
+    <rect x="118" y="0" width="22" height="150" />
+    <polygon points="0,0 28,0 140,150 112,150" />
+    
+    <!-- X -->
+    <g transform="translate(225, 0)">
+      <polygon points="0,0 28,0 140,150 112,150" />
+      <polygon points="140,0 112,0 0,150 28,150" />
+    </g>
+  </g>
+  <!-- Vertical Bar -->
+  <rect x="176" y="-10" width="16" height="170" fill="#8A7862" />
+</svg>
