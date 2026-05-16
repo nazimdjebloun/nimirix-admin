@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createUserSchema, type CreateUserFormValues } from "@/lib/validations/user";
+import { createUserSchema, type CreateUserFormValues } from "@/lib/validations/auth";
 import { Plus, Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { ROLES, ROLE_LABELS } from "@/lib/auth/roles";

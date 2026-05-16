@@ -191,3 +191,89 @@ export const revokeSession = mutation({
     });
   },
 });
+
+export const getUser = query({
+  args: { id: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    if (!args.id) return null;
+    const result = await ctx.runQuery(components.betterAuth.adapter.findOne, {
+      model: "user",
+      where: [{ field: "_id", operator: "eq", value: args.id }],
+    });
+    return result;
+  },
+});
+
+export const searchUsers = query({
+  args: {
+    search: v.optional(v.string()),
+    roles: v.optional(v.array(v.string())),
+    limit: v.optional(v.number()),
+    includeId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const currentUser = await authComponent.getAuthUser(ctx);
+    if (!currentUser) return [];
+
+    const limit = args.limit ?? 5;
+
+    // Build where clauses: role filter + optional name search via adapter's 'contains'
+    const where: Array<{
+      field: string;
+      operator: "in" | "contains" | "eq";
+      value: string | string[];
+      connector?: "AND" | "OR";
+    }> = [];
+
+    if (args.roles && args.roles.length > 0) {
+      where.push({ field: "role", operator: "in", value: args.roles });
+    }
+
+    if (args.search) {
+      where.push({ field: "name", operator: "contains", value: args.search, connector: "AND" });
+    }
+
+    const result = await ctx.runQuery(components.betterAuth.adapter.findMany, {
+      model: "user",
+      limit,
+      offset: 0,
+      paginationOpts: { cursor: null, numItems: limit },
+      ...(where.length > 0 ? { where } : {}),
+      sortBy: { field: "createdAt", direction: "desc" as const },
+    });
+
+    let users = result.page || [];
+
+    // If includeId is provided and not in the list, fetch it and add it
+    if (args.includeId && !users.some((u: { _id: string }) => u._id === args.includeId)) {
+      const specificUser = await ctx.runQuery(components.betterAuth.adapter.findOne, {
+        model: "user",
+        where: [{ field: "_id", operator: "eq", value: args.includeId }],
+      });
+      if (specificUser) {
+        users = [specificUser, ...users];
+      }
+    }
+
+    return users;
+  },
+});
+
+export const updateUserRole = mutation({
+  args: {
+    userId: v.string(),
+    role: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.runMutation(components.betterAuth.adapter.updateOne, {
+      input: {
+        model: "user",
+        where: [{ field: "_id", operator: "eq", value: args.userId }],
+        update: { 
+          role: args.role,
+          updatedAt: Date.now() 
+        },
+      },
+    });
+  },
+});

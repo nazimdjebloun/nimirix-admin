@@ -22,10 +22,10 @@ export default async function DashboardLayout({
         <AppSidebar
           preloadedUserQuery={preloadedUserQuery} 
          />
-        <SidebarInset className="bg-muted/50">
-          <div className="flex flex-1 flex-col gap-4 p-2">
+        <SidebarInset className="bg-muted/50 overflow-hidden">
+          <div className="flex flex-1 flex-col gap-4 p-2 min-w-0">
             <SidebarTrigger />
-            <div className="min-h-screen flex-1 rounded-xl bg-background border border-border/50 md:min-h-min p-6">
+            <div className="min-h-screen flex-1 rounded-xl bg-background border border-border/50 md:min-h-min p-6 min-w-0">
               {children}
             </div>
           </div>

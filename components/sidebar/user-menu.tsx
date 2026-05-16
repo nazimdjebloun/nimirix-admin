@@ -27,7 +27,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Badge } from "@/components/ui/badge"
-import { useRouter } from "next/navigation"
+// import { useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
 import { useState } from "react"
 import { UserSettingsDialog } from "../users/user-settings-dialog"
@@ -43,7 +43,7 @@ user: Doc<"user">
 
 }) {
   const { isMobile, state } = useSidebar()
-  const router = useRouter()
+  // const router = useRouter()
   const collapsed = state === "collapsed"
   const [showSettings, setShowSettings] = useState(false)
 
@@ -51,7 +51,7 @@ const handleLogout = async () => {
   await authClient.signOut({
     fetchOptions: {
       onSuccess: () => {
-        router.push("/login")
+        window.location.href = "/login";
       },
     },
   })
