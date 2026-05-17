@@ -1,9 +1,9 @@
 import { authComponent } from "../../auth";
+import { getUserById, getUsersByIds } from "../../users";
 import { v } from "convex/values";
 import { query, QueryCtx } from "../../_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { clientStatusValidator, pipelinePriorityValidator } from "../../schema";
-import { components } from "../../_generated/api";
 
 
 export async function fetchUserById(
@@ -12,10 +12,7 @@ export async function fetchUserById(
 ): Promise<{ name: string; role: string } | null> {
   if (!id) return null;
 
-  const result = await ctx.runQuery(components.betterAuth.adapter.findOne, {
-    model: "user",
-    where: [{ field: "_id", operator: "eq", value: id }],
-  });
+  const result = await getUserById(ctx, id);
 
   if (!result) return null;
 
@@ -123,18 +120,23 @@ export const getPipeline = query({
       ? paginatedResults.page.filter((c) => c.status === activeStatus)
       : paginatedResults.page;
 
-    // Join: fetch sales person name + role from the user table
-const page = await Promise.all(
-  filtered.map(async (client) => {
-    const [salesPerson, createdByUser, assignedByUser] = await Promise.all([
-      fetchUserById(ctx, client.salesPersonId),
-      fetchUserById(ctx, client.createdBy),
-      fetchUserById(ctx, client.assignedBy),
-    ]);
+    // Join: fetch sales person name + role from the user table using batch loading
+    const allUserIds: string[] = [];
+    filtered.forEach((client) => {
+      if (client.salesPersonId) allUserIds.push(client.salesPersonId);
+      if (client.createdBy) allUserIds.push(client.createdBy);
+      if (client.assignedBy) allUserIds.push(client.assignedBy);
+    });
 
-    return { ...client, salesPerson, createdByUser, assignedByUser };
-  })
-);
+    const userMap = await getUsersByIds(ctx, allUserIds);
+
+    const page = filtered.map((client) => {
+      const salesPerson = client.salesPersonId ? (userMap.get(client.salesPersonId) ?? null) : null;
+      const createdByUser = client.createdBy ? (userMap.get(client.createdBy) ?? null) : null;
+      const assignedByUser = client.assignedBy ? (userMap.get(client.assignedBy) ?? null) : null;
+
+      return { ...client, salesPerson, createdByUser, assignedByUser };
+    });
 
     return {
       ...paginatedResults,

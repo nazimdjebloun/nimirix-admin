@@ -1,4 +1,5 @@
 import { authComponent } from '../../auth';
+import { requireRoles } from "../../users";
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { clientStatusValidator, pipelinePriorityValidator } from "../../schema";
@@ -23,16 +24,7 @@ export const createClient = mutation({
     rc: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Basic auth check - ensuring user is logged in
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
-
-    const allowedRoles = ["admin", "sales", "leadSales"];
-    if (!allowedRoles.includes(user.role as string)) {
-      throw new Error("Insufficient permissions to create a prospect");
-    }
+    const user = await requireRoles(ctx, ["admin", "sales", "leadSales"]);
 
     // Filter out empty strings so optional fields are absent from the DB doc, not stored as ""
     const cleanArgs = Object.fromEntries(
@@ -59,13 +51,7 @@ export const assignSalesPerson = mutation({
     salesPersonId: v.string(),
   },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Unauthorized");
-
-    const allowedRoles = ["admin", "leadSales"];
-    if (!allowedRoles.includes(user.role as string)) {
-      throw new Error("Only admins and lead sales can assign leads to others");
-    }
+    const user = await requireRoles(ctx, ["admin", "leadSales"]);
 
     const isUnassigning = args.salesPersonId === "";
 
@@ -83,13 +69,7 @@ export const claimLead = mutation({
     clientId: v.id("clients"),
   },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Unauthorized");
-
-    const allowedRoles = ["admin", "leadSales", "sales"];
-    if (!allowedRoles.includes(user.role as string)) {
-      throw new Error("Insufficient permissions to claim a lead");
-    }
+    const user = await requireRoles(ctx, ["admin", "leadSales", "sales"]);
 
     await ctx.db.patch(args.clientId, {
       salesPersonId: user._id,
@@ -151,10 +131,7 @@ export const updateClient = mutation({
 export const deleteClient = mutation({
   args: { clientId: v.id("clients") },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user || user.role !== "admin") {
-      throw new Error("Only admins can delete prospects");
-    }
+    await requireRoles(ctx, ["admin"]);
 
     await ctx.db.delete(args.clientId);
     return { success: true };
@@ -164,10 +141,7 @@ export const deleteClient = mutation({
 export const batchDeleteClients = mutation({
   args: { clientIds: v.array(v.id("clients")) },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user || user.role !== "admin") {
-      throw new Error("Only admins can perform batch deletions");
-    }
+    await requireRoles(ctx, ["admin"]);
 
     for (const id of args.clientIds) {
       await ctx.db.delete(id);
@@ -182,13 +156,7 @@ export const batchAssignSalesPerson = mutation({
     salesPersonId: v.string(),
   },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Unauthorized");
-
-    const allowedRoles = ["admin", "leadSales"];
-    if (!allowedRoles.includes(user.role as string)) {
-      throw new Error("Insufficient permissions for batch assignment");
-    }
+    const user = await requireRoles(ctx, ["admin", "leadSales"]);
 
     const timestamp = Date.now();
     for (const id of args.clientIds) {
@@ -206,13 +174,7 @@ export const batchAssignSalesPerson = mutation({
 export const batchClaimLeads = mutation({
   args: { clientIds: v.array(v.id("clients")) },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Unauthorized");
-
-    const allowedRoles = ["admin", "leadSales", "sales"];
-    if (!allowedRoles.includes(user.role as string)) {
-      throw new Error("Insufficient permissions for batch claiming");
-    }
+    const user = await requireRoles(ctx, ["admin", "leadSales", "sales"]);
 
     const timestamp = Date.now();
     for (const id of args.clientIds) {
