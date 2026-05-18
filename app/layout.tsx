@@ -6,7 +6,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip"
-
+import { Toaster } from "@/components/ui/sonner"
 const manrope = Manrope({subsets:['latin'],variable:'--font-sans'})
 
 const fontMono = Geist_Mono({ 
@@ -47,6 +47,7 @@ export default async function RootLayout({
           <TooltipProvider>
             <ConvexClientProvider initialToken={token}>
               {children}
+              <Toaster />
             </ConvexClientProvider>
           </TooltipProvider>
         </ThemeProvider>

@@ -67,35 +67,13 @@ export function redirectToDefaultRoute(role?: string | null): never {
   }
 
 
+export function redirectIfDisallowedRoute(role: Role, pathname: string): void {
+  if (role === "admin") return;
 
+  const match = Object.values(access).find((entry) => entry.route === pathname);
+  if (!match || match.roles.length === 0) return;
 
-
-
-
-// const getCurrentUser = cache(async () => {
-//   try {
-//     return await fetchAuthQuery(api.users.getCurrentUser);
-//   } catch {
-//     return null;
-//   }
-// });
-
-// export async function requireAccess(roles: Role[]) {
-//   const user = await getCurrentUser();
-//   if (!user) redirect("/login");
-  
-//   const userRole = (user.role as Role) ?? "user";
-  
-//   // Admin always has access
-//   if (userRole === "admin") return user;
-  
-//   // If no roles specified, everyone logged in has access
-//   if (roles.length === 0) return user;
-  
-//   // Role check
-//   if (!roles.includes(userRole)) {
-//     redirect(getRoleRedirect(userRole));
-//   }
-  
-//   return user;
-// }
+  if (!(match.roles as Role[]).includes(role)) {
+    redirect(getRoleRedirect(role));
+  }
+}

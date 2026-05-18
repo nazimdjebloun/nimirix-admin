@@ -5,11 +5,11 @@
   import { api } from "@/convex/_generated/api";
   import { Doc } from "@/convex/betterAuth/_generated/dataModel";
   import { Role } from "./roles";
-  import { getRoleRedirect } from "./page-access";
+import { getRoleRedirect, redirectIfDisallowedRoute } from "./page-access";
 
 
   export const getCurrentUser = cache(async () => {
-    console.log("[getCurrentUser] FETCHING from Convex"); // This only logs on real calls
+    console.log(`[${new Date().toISOString()}] [CACHED function] calling auth from Convex`); // This only logs on real calls
     try {
       return await fetchAuthQuery(api.users.getCurrentUser);
     } catch {
@@ -31,3 +31,16 @@
     
     return user;
   }
+
+export async function requireRouteAccess(pathname: string, existingUser?: Doc<"user"> | null) {
+  const user = existingUser ?? await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const userRole = (user.role as Role) ?? "user";
+  redirectIfDisallowedRoute(userRole, pathname);
+
+  return user;
+}

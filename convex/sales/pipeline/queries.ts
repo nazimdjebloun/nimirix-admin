@@ -1,5 +1,4 @@
-import { authComponent } from "../../auth";
-import { getUserById, getUsersByIds } from "../../users";
+import { getUserById, getUsersByIds, requireRoles } from "../../users";
 import { v } from "convex/values";
 import { query, QueryCtx } from "../../_generated/server";
 import { paginationOptsValidator } from "convex/server";
@@ -80,10 +79,8 @@ export const getPipeline = query({
     splitCursor: v.optional(v.union(v.string(), v.null())),
   }),
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
+    // Get full user with role
+    await requireRoles(ctx, ["admin", "sales", "leadSales"]);
 
     const { search, status, sortOrder = "latest" } = args;
     const activeStatus = (status && status !== "all") ? status : null;

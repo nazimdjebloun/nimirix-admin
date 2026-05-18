@@ -2,7 +2,7 @@ import {  Monitor, Laptop, Smartphone} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function parseUserAgent(ua: string): string {
-    if (!ua) return "Appareil inconnu";
+    if (!ua) return "browser unknown";
 
     // Order matters: most specific first
     const browser =
@@ -11,7 +11,7 @@ export function parseUserAgent(ua: string): string {
         ua.includes("Firefox/") ? `Firefox ${ua.match(/Firefox\/([\d]+)/)?.[1] ?? ""}` :
         ua.includes("Chrome/")  ? `Chrome ${ua.match(/Chrome\/([\d]+)/)?.[1] ?? ""}` :
         ua.includes("Safari/") && ua.includes("Version/") ? `Safari ${ua.match(/Version\/([\d]+)/)?.[1] ?? ""}` :
-        "Navigateur inconnu";
+                            "browser unknown";
 
     const os =
         ua.includes("Windows NT 10.0") ? "Windows 10/11" :
@@ -21,14 +21,14 @@ export function parseUserAgent(ua: string): string {
         ua.includes("iPhone")          ? "iPhone" :
         ua.includes("iPad")            ? "iPad" :
         ua.includes("Linux")           ? "Linux" :
-        "OS inconnu";
+                                    "OS unknown";
 
     return `${browser} — ${os}`;
 }
 
 
 export function formatIP(ip: string | null | undefined): string {
-    if (!ip) return "Inconnue";
+    if (!ip) return "unknown";
     // IPv6 all-zeros is localhost
     if (/^[0:]+$/.test(ip) || ip === "::1" || ip === "::") return "Localhost";
     return ip;

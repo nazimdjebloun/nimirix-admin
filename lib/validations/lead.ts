@@ -23,7 +23,7 @@ export const leadSchema = z.object({
   salesPersonId: z.string().optional(),
   nif: z.string().optional(),
   rc: z.string().optional(),
-  activity: z.string().optional(),
+  activity: z.string().min(1, "Activity is required"),
 });
 
 export type leadSchema = z.infer<typeof leadSchema>;

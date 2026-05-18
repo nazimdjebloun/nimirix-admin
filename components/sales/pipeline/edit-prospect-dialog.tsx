@@ -98,17 +98,18 @@ export function EditProspectDialog({ client, open, onOpenChange }: EditProspectD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Edit Prospect</DialogTitle>
+          <DialogTitle>Edit Lead</DialogTitle>
           <DialogDescription>
-            Update the prospect details below. All changes are saved to the sales pipeline.
+            Update the Lead details below. All changes are saved to the sales pipeline.
           </DialogDescription>
         </DialogHeader>
-        
-        <ScrollArea className="max-h-[70vh] pr-4">
-          <form id="edit-prospect-form" onSubmit={form.handleSubmit(onSubmit)}>
-            <FieldGroup className="space-y-6 py-4">
+
+        <form id="edit-lead-form" onSubmit={form.handleSubmit(onSubmit)}>
+          <ScrollArea className="h-full max-h-[calc(90vh-10rem)] px-2.5">
+
+            <FieldGroup className="space-y-3 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <Controller
                   name="companyName"
@@ -315,15 +316,15 @@ export function EditProspectDialog({ client, open, onOpenChange }: EditProspectD
                     <Textarea 
                       {...field} 
                       placeholder="Add details about this prospect..." 
-                      className="min-h-32 resize-none"
+                      className="min-h-25 resize-none"
                     />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
-            </FieldGroup>
-          </form>
-        </ScrollArea>
+            </FieldGroup>        </ScrollArea>
+
+        </form>
 
         <DialogFooter className="border-t pt-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -344,8 +345,8 @@ export function EditProspectDialog({ client, open, onOpenChange }: EditProspectD
             >
               Reset
             </Button>
-            <Button type="submit" form="edit-prospect-form" disabled={!isDirty || isSubmitting}>
-              {isSubmitting ? "Updating..." : "Update Prospect"}
+            <Button type="submit" form="edit-lead-form" disabled={!isDirty || isSubmitting}>
+              {isSubmitting ? "Updating..." : "Update Lead"}
             </Button>
           </div>
         </DialogFooter>

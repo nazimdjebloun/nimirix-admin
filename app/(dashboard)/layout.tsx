@@ -4,7 +4,6 @@ import { api } from "@/convex/_generated/api";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { UserProvider } from "@/context/user-context";
-import { RoleGuard } from "@/lib/auth/role-guard";
 
 export default async function DashboardLayout({
   children,
@@ -17,7 +16,6 @@ export default async function DashboardLayout({
   
   return (
     <UserProvider preloadedUserQuery={preloadedUserQuery}>
-      <RoleGuard />
       <SidebarProvider>
         <AppSidebar
           preloadedUserQuery={preloadedUserQuery} 

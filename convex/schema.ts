@@ -107,6 +107,7 @@ export default defineSchema({
         )),
         notes: v.optional(v.string()),
         brief: v.optional(v.string()),
+        finishedAt: v.optional(v.number()),
         createdAt: v.number(),
         updatedAt: v.number(),
     })
@@ -124,7 +125,7 @@ export default defineSchema({
             v.literal("call"),
             v.literal("email"),
         ),
-        occurredAt: v.number(),
+        scheduledAt: v.number(),
         status: v.union(
             v.literal("scheduled"),
             v.literal("completed"),
@@ -137,13 +138,14 @@ export default defineSchema({
             v.literal("negative")
         )),
         notes: v.optional(v.string()),
+        finishedAt: v.optional(v.number()),
         createdAt: v.number(),
         updatedAt: v.number(),
     })
         .index("by_client", ["clientId"])
         .index("by_user", ["userId"])
-        .index("by_contact_date", ["occurredAt"])
-        .index("by_user_and_occurred", ["userId", "occurredAt"]),
+        .index("by_contact_date", ["scheduledAt"])
+        .index("by_user_and_scheduled", ["userId", "scheduledAt"]),
 
     // CRM Reminders - Task notifications for the team
     crmReminders: defineTable({

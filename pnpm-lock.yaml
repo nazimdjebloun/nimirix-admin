@@ -8,6 +8,7 @@ overrides:
   '@types/react': 19.2.14
   '@types/react-dom': 19.2.3
   postcss: ^8.5.10
+  convex: ^1.37.0
 
 importers:
 
@@ -344,7 +345,7 @@ packages:
     resolution: {integrity: sha512-6L8LkXCB5rp9XmQplRj2EVNeD6mkG0b5PPQpm9fooEJ/L3ThGN4jRE4oMfWeBs+9E20eBciWVP0HJooemSgS0w==}
     peerDependencies:
       better-auth: '>=1.6.9 <1.7.0'
-      convex: ^1.25.0
+      convex: ^1.37.0
       react: ^18.3.1 || ^19.0.0
 
   '@date-fns/tz@1.4.1':
@@ -2269,7 +2270,7 @@ packages:
     hasBin: true
     peerDependencies:
       '@standard-schema/spec': ^1.0.0
-      convex: ^1.32.0
+      convex: ^1.37.0
       hono: ^4.0.5
       react: ^17.0.2 || ^18.0.0 || ^19.0.0
       typescript: ^5.5 || ^6.0.0

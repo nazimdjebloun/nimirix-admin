@@ -16,7 +16,7 @@ export function PipelineHeader() {
       <AddProspectDialog>
         <Button className="text-sm py-4 px-6 font-semibold ">
           <Plus className="w-5 h-5 mr-2" />
-          New Prospect
+          New Lead
         </Button>
       </AddProspectDialog>
     </div>

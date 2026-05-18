@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { UserSelect } from "@/components/shared/user-select"
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function AddProspectDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false)
@@ -82,16 +83,17 @@ defaultValues: {
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-125">
+      <DialogContent className="sm:max-w-125 max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Add New Prospect</DialogTitle>
+          <DialogTitle>Add New Lead</DialogTitle>
           <DialogDescription>
-            Enter the prospect details to add them to your sales pipeline.
+            Enter the lead details to add them to your sales pipeline.
           </DialogDescription>
         </DialogHeader>
         
-        <form id="add-prospect-form" onSubmit={form.handleSubmit(onSubmit)}>
-          <FieldGroup className="space-y-5 py-4">
+        <form id="add-lead-form" onSubmit={form.handleSubmit(onSubmit)}>
+          <ScrollArea className="h-full max-h-[calc(90vh-10rem)] px-2.5">
+            <FieldGroup className="space-y-3 py-4">
             <Controller
               name="companyName"
               control={form.control}
@@ -247,17 +249,18 @@ defaultValues: {
               )}
             />
           </FieldGroup>
+          </ScrollArea>
         </form>
 
-        <DialogFooter className="border-t pt-4">
+        <DialogFooter className="border-t pt-4 ">
           <Button type="button" variant="ghost" onClick={() => form.reset()}>
             Reset
           </Button>
           <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
             Cancel
           </Button>
-          <Button type="submit" form="add-prospect-form">
-            Save Prospect
+          <Button type="submit" form="add-lead-form">
+            Save Lead
           </Button>
         </DialogFooter>
       </DialogContent>
