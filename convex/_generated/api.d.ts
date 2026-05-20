@@ -13,12 +13,16 @@ import type * as email from "../email.js";
 import type * as http from "../http.js";
 import type * as sales_actionCenter_mutations from "../sales/actionCenter/mutations.js";
 import type * as sales_actionCenter_queries from "../sales/actionCenter/queries.js";
+import type * as sales_admin_mutations from "../sales/admin/mutations.js";
+import type * as sales_admin_queries from "../sales/admin/queries.js";
+import type * as sales_aggregates from "../sales/aggregates.js";
 import type * as sales_dashboard_mutations from "../sales/dashboard/mutations.js";
 import type * as sales_dashboard_queries from "../sales/dashboard/queries.js";
 import type * as sales_interactions_mutations from "../sales/interactions/mutations.js";
 import type * as sales_interactions_queries from "../sales/interactions/queries.js";
 import type * as sales_meetings_mutations from "../sales/meetings/mutations.js";
 import type * as sales_meetings_queries from "../sales/meetings/queries.js";
+import type * as sales_migrations from "../sales/migrations.js";
 import type * as sales_pipeline_mutations from "../sales/pipeline/mutations.js";
 import type * as sales_pipeline_queries from "../sales/pipeline/queries.js";
 import type * as seed from "../seed.js";
@@ -36,12 +40,16 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "sales/actionCenter/mutations": typeof sales_actionCenter_mutations;
   "sales/actionCenter/queries": typeof sales_actionCenter_queries;
+  "sales/admin/mutations": typeof sales_admin_mutations;
+  "sales/admin/queries": typeof sales_admin_queries;
+  "sales/aggregates": typeof sales_aggregates;
   "sales/dashboard/mutations": typeof sales_dashboard_mutations;
   "sales/dashboard/queries": typeof sales_dashboard_queries;
   "sales/interactions/mutations": typeof sales_interactions_mutations;
   "sales/interactions/queries": typeof sales_interactions_queries;
   "sales/meetings/mutations": typeof sales_meetings_mutations;
   "sales/meetings/queries": typeof sales_meetings_queries;
+  "sales/migrations": typeof sales_migrations;
   "sales/pipeline/mutations": typeof sales_pipeline_mutations;
   "sales/pipeline/queries": typeof sales_pipeline_queries;
   seed: typeof seed;
@@ -76,4 +84,8 @@ export declare const internal: FilterApi<
 
 export declare const components: {
   betterAuth: import("../betterAuth/_generated/component.js").ComponentApi<"betterAuth">;
+  aggregatePipeline: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"aggregatePipeline">;
+  aggregatePipelineBySalesPerson: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"aggregatePipelineBySalesPerson">;
+  aggregateInteractionsByUser: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"aggregateInteractionsByUser">;
+  aggregateMeetingsByUser: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"aggregateMeetingsByUser">;
 };

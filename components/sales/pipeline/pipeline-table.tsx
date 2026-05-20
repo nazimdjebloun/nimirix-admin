@@ -20,7 +20,7 @@ import {
 
 import { api } from "@/convex/_generated/api";
 import { PipelineClientDetailsDialog } from "./pipeline-client-details-dialog";
-import { EditProspectDialog } from "./edit-prospect-dialog";
+import { EditProspectDialog } from "./edit-lead-dialog";
 import { DeleteProspectDialog } from "./delete-prospect-dialog";
 import { PipelineBulkActions } from "./pipeline-bulk-actions";
 import { useUser } from "@/context/user-context";

@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { requireRoles } from "../../users";
+import { aggregateMeetingsByUser } from "../aggregates";
 
 export const createMeeting = mutation({
   args: {
@@ -44,6 +45,9 @@ export const createMeeting = mutation({
       updatedAt: Date.now(),
     });
 
+    const doc = await ctx.db.get(meetingId);
+    await aggregateMeetingsByUser.insert(ctx, doc!);
+
     return meetingId;
   },
 });
@@ -63,6 +67,7 @@ export const updateMeeting = mutation({
   handler: async (ctx, args) => {
     await requireRoles(ctx, ["admin", "sales", "leadSales"]);
     const { meetingId, ...updateData } = args;
+    const oldDoc = await ctx.db.get(meetingId);
     await ctx.db.patch(meetingId, {
       scheduledAt: updateData.scheduledAt,
       type: updateData.type,
@@ -70,6 +75,8 @@ export const updateMeeting = mutation({
       notes: updateData.notes || undefined,
       updatedAt: Date.now(),
     });
+    const newDoc = await ctx.db.get(meetingId);
+    await aggregateMeetingsByUser.replace(ctx, oldDoc!, newDoc!);
   },
 });
 
@@ -91,6 +98,7 @@ export const updateMeetingStatus = mutation({
   },
   handler: async (ctx, args) => {
     await requireRoles(ctx, ["admin", "sales", "leadSales"]);
+    const oldDoc = await ctx.db.get(args.meetingId);
     await ctx.db.patch(args.meetingId, {
       status: args.status,
       outcome: args.outcome || undefined,
@@ -98,6 +106,8 @@ export const updateMeetingStatus = mutation({
       finishedAt: args.status !== "scheduled" ? Date.now() : undefined,
       updatedAt: Date.now(),
     });
+    const newDoc = await ctx.db.get(args.meetingId);
+    await aggregateMeetingsByUser.replace(ctx, oldDoc!, newDoc!);
   },
 });
 
@@ -107,6 +117,10 @@ export const deleteMeeting = mutation({
   },
   handler: async (ctx, args) => {
     await requireRoles(ctx, ["admin", "sales", "leadSales"]);
+    const oldDoc = await ctx.db.get(args.meetingId);
     await ctx.db.delete(args.meetingId);
+    if (oldDoc) {
+      await aggregateMeetingsByUser.delete(ctx, oldDoc);
+    }
   },
 });

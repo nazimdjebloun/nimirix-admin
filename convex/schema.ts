@@ -65,6 +65,8 @@ export default defineSchema({
         .index("by_sales_person_last_interaction", ["salesPersonId", "lastInteractionAt"])
         .index("by_status_updated", ["status", "updatedAt"])
         .index("by_status_created", ["status", "createdAt"])
+        .index("by_status_active_updated", ["status", "isActive", "updatedAt"])
+        .index("by_status_active_last_interaction", ["status", "isActive", "lastInteractionAt"])
         .searchIndex("search_company", {
             searchField: "companyName",
         }),
@@ -76,12 +78,14 @@ export default defineSchema({
         oldStatus: v.optional(clientStatusValidator), // Using shared validator
         newStatus: clientStatusValidator, // Using shared validator
         notes: v.optional(v.string()),
+        isFinalStage: v.boolean(),
         createdAt: v.number(),
     })
         .index("by_client", ["clientId"])
         .index("by_old_status", ["oldStatus"])
         .index("by_new_status", ["newStatus"])
-        .index("by_created_at", ["createdAt"]),
+        .index("by_created_at", ["createdAt"])
+        .index("by_is_final_stage_created", ["isFinalStage", "createdAt"]),
 
     // Client Meetings - Formal events
     clientMeetings: defineTable({
@@ -115,6 +119,7 @@ export default defineSchema({
         .index("by_user", ["userId"])
         .index("by_meeting_date", ["scheduledAt"])
         .index("by_meeting_status", ["status"])
+        .index("by_type", ["type"])
         .index("by_user_and_scheduled", ["userId", "scheduledAt"]),
 
     // Client Interactions - Calls, emails, quick touches
@@ -145,6 +150,8 @@ export default defineSchema({
         .index("by_client", ["clientId"])
         .index("by_user", ["userId"])
         .index("by_contact_date", ["scheduledAt"])
+        .index("by_status", ["status"])
+        .index("by_type", ["type"])
         .index("by_user_and_scheduled", ["userId", "scheduledAt"]),
 
     // CRM Reminders - Task notifications for the team

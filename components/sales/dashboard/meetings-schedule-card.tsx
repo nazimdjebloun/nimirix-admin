@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { usePaginatedQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { SortFilter } from "@/components/sales/dashboard/sort-filter";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
+import { useState } from "react"
+import { usePaginatedQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import { Card, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { SortFilter } from "@/components/sales/dashboard/sort-filter"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
 import {
   Calendar,
   Clock,
@@ -16,57 +16,75 @@ import {
   Edit2,
   Settings,
   CalendarX2,
-} from "lucide-react";
+} from "lucide-react"
 import {
   formatDateNumeric as formatDateShort,
   formatTimeOnly as formatTime,
   formatRelativeTime,
-} from "@/lib/utils/date-utils";
+} from "@/lib/utils/date-utils"
 
-import { UpdateMeetingStatusDialog } from "@/components/sales/dashboard/update-meeting-status-dialog";
-import { EditMeetingDialog } from "@/components/sales/dashboard/edit-meeting-dialog";
-import { ClientDetailSheet } from "@/components/sales/dashboard/client-detail-sheet";
-import { Doc, Id } from "@/convex/_generated/dataModel";
-import { MeetingStatusBadge, MeetingTypeBadge } from "@/components/sales/dashboard/crm-badges";
+import { UpdateMeetingStatusDialog } from "@/components/sales/dashboard/update-meeting-status-dialog"
+import { EditMeetingDialog } from "@/components/sales/dashboard/edit-meeting-dialog"
+import { ClientDetailSheet } from "@/components/sales/dashboard/client-detail-sheet"
+import { Doc, Id } from "@/convex/_generated/dataModel"
+import {
+  MeetingStatusBadge,
+  MeetingTypeBadge,
+} from "@/components/sales/dashboard/crm-badges"
 
 export function MeetingsScheduleCard() {
-  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
-  const [search, setSearch] = useState("");
-  const [statusMeeting, setStatusMeeting] = useState<(Doc<"clientMeetings"> & { client?: { companyName: string } | null }) | null>(null);
-  const [editDetailsMeeting, setEditDetailsMeeting] = useState<(Doc<"clientMeetings"> & { client?: { companyName: string } | null }) | null>(null);
-  const [selectedClientId, setSelectedClientId] = useState<Id<"clients"> | null>(null);
-  const [detailOpen, setDetailOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
+  const [search, setSearch] = useState("")
+  const [statusMeeting, setStatusMeeting] = useState<
+    (Doc<"clientMeetings"> & { client?: { companyName: string } | null }) | null
+  >(null)
+  const [editDetailsMeeting, setEditDetailsMeeting] = useState<
+    (Doc<"clientMeetings"> & { client?: { companyName: string } | null }) | null
+  >(null)
+  const [selectedClientId, setSelectedClientId] =
+    useState<Id<"clients"> | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
 
   const openClientDetail = (id: Id<"clients">) => {
-    setSelectedClientId(id);
-    setDetailOpen(true);
-  };
+    setSelectedClientId(id)
+    setDetailOpen(true)
+  }
 
   const { results, status, loadMore } = usePaginatedQuery(
     api.sales.meetings.queries.getMeetingsPaginated,
     { sortOrder, status: "scheduled" },
     { initialNumItems: 10 }
-  );
+  )
 
-  const filteredMeetings = (results || []).filter((meeting) =>
-    (meeting.client?.companyName || "").toLowerCase().includes(search.toLowerCase()) ||
-    (meeting.client?.contact || "").toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredMeetings = (results || []).filter(
+    (meeting) =>
+      (meeting.client?.companyName || "")
+        .toLowerCase()
+        .includes(search.toLowerCase()) ||
+      (meeting.client?.contact || "")
+        .toLowerCase()
+        .includes(search.toLowerCase())
+  )
 
   return (
     <>
-      <Card className="flex min-w-0 flex-col justify-between p-1 lg:h-100">
+      <Card className="flex min-w-0 flex-1 flex-col justify-between p-1">
         <CardHeader className="space-y-2 pb-2">
           <div className="flex flex-col gap-2 px-1 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="flex items-center gap-2 text-xs font-black tracking-widest text-muted-foreground uppercase">
               Scheduled Meetings
             </CardTitle>
             <div className="flex items-center gap-2">
-              <SortFilter value={sortOrder} onValueChange={(value) => setSortOrder(value as "newest" | "oldest")} />
+              <SortFilter
+                value={sortOrder}
+                onValueChange={(value) =>
+                  setSortOrder(value as "newest" | "oldest")
+                }
+              />
             </div>
           </div>
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+            <Search className="absolute top-2.5 left-2.5 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               placeholder="Search client..."
               className="h-8 border-border/40 bg-secondary/20 pl-8 text-xs font-medium focus-visible:ring-primary/20"
@@ -76,7 +94,7 @@ export function MeetingsScheduleCard() {
           </div>
         </CardHeader>
 
-        <ScrollArea className="rounded-lg border border-border/40 bg-secondary/5 px-3 py-1.5 max-lg:h-[28rem] lg:h-72">
+        <ScrollArea className="min-h-0 flex-1 rounded-lg border border-border/40 bg-secondary/5 px-3 py-1.5">
           <div className="space-y-2 py-1">
             {filteredMeetings.map((meeting) => (
               <div
@@ -87,7 +105,7 @@ export function MeetingsScheduleCard() {
                   <div className="min-w-0 sm:flex-1">
                     <button
                       onClick={() => openClientDetail(meeting.clientId)}
-                      className="block min-w-0 cursor-pointer break-words text-left text-sm font-black uppercase tracking-tight text-foreground transition-colors hover:text-primary"
+                      className="block min-w-0 cursor-pointer text-left text-sm font-black tracking-tight break-words text-foreground uppercase transition-colors hover:text-primary"
                     >
                       {meeting.client?.companyName}
                     </button>
@@ -131,8 +149,12 @@ export function MeetingsScheduleCard() {
                   <MeetingTypeBadge type={meeting.type} />
                   {meeting.location && (
                     <>
-                      <span className="hidden text-border sm:inline">&bull;</span>
-                      <span className="max-w-full break-words sm:max-w-45 sm:truncate">{meeting.location}</span>
+                      <span className="hidden text-border sm:inline">
+                        &bull;
+                      </span>
+                      <span className="max-w-full break-words sm:max-w-45 sm:truncate">
+                        {meeting.location}
+                      </span>
                     </>
                   )}
                 </div>
@@ -140,7 +162,9 @@ export function MeetingsScheduleCard() {
                 {meeting.notes && (
                   <div className="mt-1.5 border-t pt-1.5">
                     <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                      <span className="mr-1 text-[10px] font-black uppercase tracking-wider text-foreground/70">Notes:</span>
+                      <span className="mr-1 text-[10px] font-black tracking-wider text-foreground/70 uppercase">
+                        Notes:
+                      </span>
                       {meeting.notes}
                     </p>
                   </div>
@@ -186,13 +210,19 @@ export function MeetingsScheduleCard() {
             {filteredMeetings.length === 0 && status !== "LoadingFirstPage" && (
               <div className="flex flex-col items-center justify-center space-y-2 py-12 text-muted-foreground">
                 <CalendarX2 className="h-6 w-6" />
-                <p className="text-xs font-bold tracking-widest uppercase">No meetings found</p>
+                <p className="text-xs font-bold tracking-widest uppercase">
+                  No meetings found
+                </p>
               </div>
             )}
           </div>
         </ScrollArea>
       </Card>
-      <ClientDetailSheet clientId={selectedClientId} open={detailOpen} onOpenChange={setDetailOpen} />
+      <ClientDetailSheet
+        clientId={selectedClientId}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
     </>
-  );
+  )
 }

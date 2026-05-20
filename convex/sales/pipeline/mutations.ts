@@ -4,6 +4,7 @@ import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { clientStatusValidator, pipelinePriorityValidator } from "../../schema";
 import { Doc } from "../../_generated/dataModel";
+import { aggregatePipeline, aggregatePipelineBySalesPerson } from "../aggregates";
 
 export const createClient = mutation({
   args: {
@@ -41,6 +42,10 @@ export const createClient = mutation({
       updatedAt: Date.now(),
     });
 
+    const doc = await ctx.db.get(clientId);
+    await aggregatePipeline.insert(ctx, doc!);
+    await aggregatePipelineBySalesPerson.insert(ctx, doc!);
+
     return clientId;
   },
 });
@@ -54,6 +59,7 @@ export const assignSalesPerson = mutation({
     const user = await requireRoles(ctx, ["admin", "leadSales"]);
 
     const isUnassigning = args.salesPersonId === "";
+    const oldDoc = await ctx.db.get(args.clientId);
 
     await ctx.db.patch(args.clientId, {
       salesPersonId: isUnassigning ? undefined : args.salesPersonId,
@@ -61,6 +67,10 @@ export const assignSalesPerson = mutation({
       assignedAt: isUnassigning ? undefined : Date.now(),
       updatedAt: Date.now(),
     });
+
+    const newDoc = await ctx.db.get(args.clientId);
+    await aggregatePipeline.replace(ctx, oldDoc!, newDoc!);
+    await aggregatePipelineBySalesPerson.replace(ctx, oldDoc!, newDoc!);
   },
 });
 
@@ -71,12 +81,18 @@ export const claimLead = mutation({
   handler: async (ctx, args) => {
     const user = await requireRoles(ctx, ["admin", "leadSales", "sales"]);
 
+    const oldDoc = await ctx.db.get(args.clientId);
+
     await ctx.db.patch(args.clientId, {
       salesPersonId: user._id,
       assignedBy: user._id,
       assignedAt: Date.now(),
       updatedAt: Date.now(),
     });
+
+    const newDoc = await ctx.db.get(args.clientId);
+    await aggregatePipeline.replace(ctx, oldDoc!, newDoc!);
+    await aggregatePipelineBySalesPerson.replace(ctx, oldDoc!, newDoc!);
   },
 });
 
@@ -105,11 +121,9 @@ export const updateClient = mutation({
 
     const { clientId, ...updateData } = args;
 
-    // Check if salesperson changed to update assignedAt/By
     const existingClient = await ctx.db.get(clientId);
     if (!existingClient) throw new Error("Client not found");
 
-    // Filter out empty strings so optional fields are absent from the DB doc, not stored as ""
     const cleanData = Object.fromEntries(
       Object.entries(updateData).filter(([, v]) => v !== "")
     ) as typeof updateData;
@@ -125,15 +139,22 @@ export const updateClient = mutation({
     }
 
     await ctx.db.patch(clientId, patchData);
+
+    const newDoc = await ctx.db.get(clientId);
+    await aggregatePipeline.replace(ctx, existingClient, newDoc!);
+    await aggregatePipelineBySalesPerson.replace(ctx, existingClient, newDoc!);
   },
 });
 
 export const deleteClient = mutation({
   args: { clientId: v.id("clients") },
   handler: async (ctx, args) => {
-    await requireRoles(ctx, ["admin"]);
-
+    const oldDoc = await ctx.db.get(args.clientId);
     await ctx.db.delete(args.clientId);
+    if (oldDoc) {
+      await aggregatePipeline.delete(ctx, oldDoc);
+      await aggregatePipelineBySalesPerson.delete(ctx, oldDoc);
+    }
     return { success: true };
   },
 });
@@ -144,7 +165,12 @@ export const batchDeleteClients = mutation({
     await requireRoles(ctx, ["admin"]);
 
     for (const id of args.clientIds) {
+      const oldDoc = await ctx.db.get(id);
       await ctx.db.delete(id);
+      if (oldDoc) {
+        await aggregatePipeline.delete(ctx, oldDoc);
+        await aggregatePipelineBySalesPerson.delete(ctx, oldDoc);
+      }
     }
     return { success: true };
   },
@@ -160,12 +186,16 @@ export const batchAssignSalesPerson = mutation({
 
     const timestamp = Date.now();
     for (const id of args.clientIds) {
+      const oldDoc = await ctx.db.get(id);
       await ctx.db.patch(id, {
         salesPersonId: args.salesPersonId,
         assignedBy: user._id,
         assignedAt: timestamp,
         updatedAt: timestamp,
       });
+      const newDoc = await ctx.db.get(id);
+      await aggregatePipeline.replace(ctx, oldDoc!, newDoc!);
+      await aggregatePipelineBySalesPerson.replace(ctx, oldDoc!, newDoc!);
     }
     return { success: true };
   },
@@ -178,12 +208,16 @@ export const batchClaimLeads = mutation({
 
     const timestamp = Date.now();
     for (const id of args.clientIds) {
+      const oldDoc = await ctx.db.get(id);
       await ctx.db.patch(id, {
         salesPersonId: user._id,
         assignedBy: user._id,
         assignedAt: timestamp,
         updatedAt: timestamp,
       });
+      const newDoc = await ctx.db.get(id);
+      await aggregatePipeline.replace(ctx, oldDoc!, newDoc!);
+      await aggregatePipelineBySalesPerson.replace(ctx, oldDoc!, newDoc!);
     }
     return { success: true };
   },

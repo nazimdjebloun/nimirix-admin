@@ -253,14 +253,14 @@ defaultValues: {
         </form>
 
         <DialogFooter className="border-t pt-4 ">
-          <Button type="button" variant="ghost" onClick={() => form.reset()}>
+          <Button type="button" variant="ghost" onClick={() => form.reset()} disabled={form.formState.isSubmitting}>
             Reset
           </Button>
-          <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+          <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={form.formState.isSubmitting}>
             Cancel
           </Button>
-          <Button type="submit" form="add-lead-form">
-            Save Lead
+          <Button type="submit" form="add-lead-form" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? "Creating..." : "Create"}
           </Button>
         </DialogFooter>
       </DialogContent>

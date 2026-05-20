@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { AddProspectDialog } from "./add-prospect-dialog";
+import { AddProspectDialog } from "./create-lead-dialog";
 
 export function PipelineHeader() {
   return (

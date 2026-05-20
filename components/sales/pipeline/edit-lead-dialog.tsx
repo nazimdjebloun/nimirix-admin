@@ -346,7 +346,7 @@ export function EditProspectDialog({ client, open, onOpenChange }: EditProspectD
               Reset
             </Button>
             <Button type="submit" form="edit-lead-form" disabled={!isDirty || isSubmitting}>
-              {isSubmitting ? "Updating..." : "Update Lead"}
+              {isSubmitting ? "Updating..." : "Update"}
             </Button>
           </div>
         </DialogFooter>

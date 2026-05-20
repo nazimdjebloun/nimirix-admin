@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { requireRoles } from "../../users";
+import { aggregateInteractionsByUser } from "../aggregates";
 
 export const createInteraction = mutation({
   args: {
@@ -52,6 +53,9 @@ export const createInteraction = mutation({
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
+
+    const doc = await ctx.db.get(interactionId);
+    await aggregateInteractionsByUser.insert(ctx, doc!);
 
     return interactionId;
   },
@@ -122,6 +126,9 @@ export const updateInteraction = mutation({
       }),
       updatedAt: Date.now(),
     });
+
+    const newDoc = await ctx.db.get(interactionId);
+    await aggregateInteractionsByUser.replace(ctx, interaction, newDoc!);
   },
 });
 
@@ -131,6 +138,10 @@ export const deleteInteraction = mutation({
   },
   handler: async (ctx, args) => {
     await requireRoles(ctx, ["admin", "sales", "leadSales"]);
+    const oldDoc = await ctx.db.get(args.interactionId);
     await ctx.db.delete(args.interactionId);
+    if (oldDoc) {
+      await aggregateInteractionsByUser.delete(ctx, oldDoc);
+    }
   },
 });

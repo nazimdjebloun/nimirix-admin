@@ -2,6 +2,7 @@ import { requireRoles } from "@/convex/users";
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
+import { aggregatePipeline, aggregatePipelineBySalesPerson } from "../aggregates";
 
 
 /**
@@ -51,12 +52,17 @@ export const updateStatus = mutation({
 
     await ctx.db.patch(args.id, updates);
 
+    const newDoc = await ctx.db.get(args.id);
+    await aggregatePipeline.replace(ctx, client, newDoc!);
+    await aggregatePipelineBySalesPerson.replace(ctx, client, newDoc!);
+
     // Log the status change
     await ctx.db.insert("clientStatusLog", {
       clientId: args.id,
       userId: user._id,
       oldStatus,
       newStatus: args.status,
+      isFinalStage: ["converted", "lost", "out_of_target"].includes(args.status),
       notes: args.notes,
       createdAt: Date.now(),
     });
