@@ -78,7 +78,12 @@ export async function requireRoles(
   ctx: GenericCtx<DataModel>,
   allowedRoles: Role[]
 ) {
-  const user = await authComponent.getAuthUser(ctx);
+  let user;
+  try {
+    user = await authComponent.getAuthUser(ctx);
+  } catch {
+    throw new Error("Unauthorized");
+  }
   if (!user) {
     throw new Error("Unauthorized");
   }

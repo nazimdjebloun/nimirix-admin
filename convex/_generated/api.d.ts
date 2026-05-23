@@ -8,6 +8,8 @@
  * @module
  */
 
+import type * as admin_invoices_mutations from "../admin/invoices/mutations.js";
+import type * as admin_invoices_queries from "../admin/invoices/queries.js";
 import type * as auth from "../auth.js";
 import type * as email from "../email.js";
 import type * as http from "../http.js";
@@ -16,6 +18,8 @@ import type * as sales_actionCenter_queries from "../sales/actionCenter/queries.
 import type * as sales_admin_mutations from "../sales/admin/mutations.js";
 import type * as sales_admin_queries from "../sales/admin/queries.js";
 import type * as sales_aggregates from "../sales/aggregates.js";
+import type * as sales_clients_mutations from "../sales/clients/mutations.js";
+import type * as sales_clients_queries from "../sales/clients/queries.js";
 import type * as sales_dashboard_mutations from "../sales/dashboard/mutations.js";
 import type * as sales_dashboard_queries from "../sales/dashboard/queries.js";
 import type * as sales_interactions_mutations from "../sales/interactions/mutations.js";
@@ -35,6 +39,8 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "admin/invoices/mutations": typeof admin_invoices_mutations;
+  "admin/invoices/queries": typeof admin_invoices_queries;
   auth: typeof auth;
   email: typeof email;
   http: typeof http;
@@ -43,6 +49,8 @@ declare const fullApi: ApiFromModules<{
   "sales/admin/mutations": typeof sales_admin_mutations;
   "sales/admin/queries": typeof sales_admin_queries;
   "sales/aggregates": typeof sales_aggregates;
+  "sales/clients/mutations": typeof sales_clients_mutations;
+  "sales/clients/queries": typeof sales_clients_queries;
   "sales/dashboard/mutations": typeof sales_dashboard_mutations;
   "sales/dashboard/queries": typeof sales_dashboard_queries;
   "sales/interactions/mutations": typeof sales_interactions_mutations;

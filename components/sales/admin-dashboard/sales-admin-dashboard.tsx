@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery } from "convex/react"
+import { useQuery, useConvexAuth } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import {
   TrendingUp,
@@ -47,6 +47,7 @@ function SectionHeading({
 
 export function SalesAdminDashboard() {
   const [currentTime, setCurrentTime] = useState(() => Date.now())
+  const { isAuthenticated } = useConvexAuth()
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -55,9 +56,7 @@ export function SalesAdminDashboard() {
     return () => clearInterval(interval)
   }, [])
 
-  const data = useQuery(api.sales.admin.queries.getAdminDashboardData, {
-    currentTime,
-  })
+  const data = useQuery(api.sales.admin.queries.getAdminDashboardData, isAuthenticated ? { currentTime } : "skip")
 
   if (!data) {
     return (

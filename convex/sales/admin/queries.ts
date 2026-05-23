@@ -515,16 +515,45 @@ export const getPaginatedSalesRepsPerformance = query({
 
     const thirtyDaysAgo = args.currentTime - 30 * 24 * 60 * 60 * 1000
 
+    // const where: Array<{
+    //   field: string
+    //   operator: "in" | "contains" | "eq"
+    //   value: string | string[]
+    //   connector?: "AND" | "OR"
+    // }> = [
+    //   { field: "role", operator: "eq", value: "sales" },
+    //   { field: "role", operator: "eq", value: "leadSales" },
+    // ]
+
     const where: Array<{
       field: string
       operator: "in" | "contains" | "eq"
-      value: string | string[]
+      // | "lt"
+      // | "lte"
+      // | "gt"
+      // | "gte"
+      // | "in"
+      // | "not_in"
+      // | "ne"
+      // | "contains"
+      // | "starts_with"
+      // | "ends_with"
+      value: string | string[] | number | boolean | null
       connector?: "AND" | "OR"
+      mode?: "sensitive" | "insensitive"
     }> = [
-      { field: "role", operator: "eq", value: "sales" },
-      { field: "role", operator: "eq", value: "leadSales" },
+      { field: "role", operator: "in", value: ["sales", "leadSales"] },
+      ...(args.search
+        ? [
+            {
+              field: "name",
+              operator: "contains" as const,
+              value: args.search,
+              connector: "AND" as const,
+            },
+          ]
+        : []),
     ]
-
     if (args.search) {
       where.push({
         field: "name",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePaginatedQuery } from "convex/react";
+import { usePaginatedQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { UserFilters } from "./UserFilters";
 import { UserTable } from "./UserTable";
@@ -15,10 +15,11 @@ export  function AdminUsers() {
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("all");
   const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
+  const { isAuthenticated } = useConvexAuth();
 
   const { results, status, loadMore } = usePaginatedQuery(
     api.users.getPaginatedUsers,
-    { search, role, sortOrder },
+    isAuthenticated ? { search, role, sortOrder } : "skip",
     { initialNumItems: USERS_PER_PAGE }
   );
 

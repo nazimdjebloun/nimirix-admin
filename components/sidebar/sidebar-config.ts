@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Target, Settings, ShieldCheck, Code2,
   Cloud, Search, Layers, LineChart, Building2, UserCog,
-  ClipboardCheck, Activity, LucideIcon,
+  ClipboardCheck, Activity, Receipt, LucideIcon,
 } from "lucide-react"
 import { Role } from "@/lib/auth/roles"
 import { access } from "@/lib/auth/page-access"
@@ -26,6 +26,7 @@ export const sidebarGroups: SidebarGroup[] = [
       { label: "Master Admin Overview", icon: Activity,       href: access.adminCentral.route,         roles: [...access.adminCentral.roles] },
       { label: "User Management",        icon: UserCog,       href: access.adminUsers.route,            roles: [...access.adminUsers.roles] },
       { label: "System Settings",        icon: Settings,      href: access.adminSettings.route,         roles: [...access.adminSettings.roles] },
+      { label: "Invoices",               icon: Receipt,       href: access.adminInvoices.route,         roles: [...access.adminInvoices.roles] },
     ],
   },
   {

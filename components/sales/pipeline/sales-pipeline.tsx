@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePaginatedQuery } from "convex/react";
+import { usePaginatedQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { PipelineHeader } from "./pipeline-header";
 import { PipelineTabs } from "./pipeline-tabs";
@@ -16,15 +16,18 @@ export function SalesPipeline() {
   const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const debouncedSearch = useDebounce(search, 300);
+  const { isAuthenticated } = useConvexAuth();
 
   const { results, status, loadMore } = usePaginatedQuery(
     api.sales.pipeline.queries.getPipeline,
-    {
-      search: debouncedSearch,
-      status: activeTab as "all" | "prospect" | "initial_contact" | "negotiation" | "verbal_agreement" | "converted" | "lost" | "out_of_target",
-      sortOrder,
-      pageSize: itemsPerPage,
-    },
+    isAuthenticated
+      ? {
+          search: debouncedSearch,
+          status: activeTab as "all" | "prospect" | "initial_contact" | "negotiation" | "verbal_agreement" | "converted" | "lost" | "out_of_target",
+          sortOrder,
+          pageSize: itemsPerPage,
+        }
+      : "skip",
     { initialNumItems: itemsPerPage }
   );
 
