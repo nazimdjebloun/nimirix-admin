@@ -106,27 +106,31 @@ export const getConvertedClientsPaginated = query({
 export const getClientDetails = query({
   args: { clientId: v.id("clients") },
   handler: async (ctx, args) => {
-    const user = await requireRoles(ctx, ["admin", "sales", "leadSales"]);
-    const isManagerOrAdmin = user.role === "admin" || user.role === "leadSales";
+    let client;
+    try {
+      const user = await requireRoles(ctx, ["admin", "sales", "leadSales"]);
+      const isManagerOrAdmin = user.role === "admin" || user.role === "leadSales";
 
-    const client = await ctx.db.get(args.clientId);
-    if (!client || client.status !== "converted") {
-      throw new Error("Client not found or not converted");
-    }
-
-    // Check permissions
-    if (!isManagerOrAdmin) {
-      const isOwner = client.salesPersonId === user._id;
-      const isCollaborator = await ctx.db
-        .query("clientCollaborators")
-        .withIndex("by_client_and_user", (q) =>
-          q.eq("clientId", args.clientId).eq("userId", user._id)
-        )
-        .first();
-
-      if (!isOwner && !isCollaborator) {
-        throw new Error("Unauthorized access to client details");
+      client = await ctx.db.get(args.clientId);
+      if (!client || client.status !== "converted") {
+        return null;
       }
+
+      if (!isManagerOrAdmin) {
+        const isOwner = client.salesPersonId === user._id;
+        const isCollaborator = await ctx.db
+          .query("clientCollaborators")
+          .withIndex("by_client_and_user", (q) =>
+            q.eq("clientId", args.clientId).eq("userId", user._id)
+          )
+          .first();
+
+        if (!isOwner && !isCollaborator) {
+          return null;
+        }
+      }
+    } catch {
+      return null;
     }
 
     // Fetch projects
