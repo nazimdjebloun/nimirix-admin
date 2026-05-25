@@ -13,6 +13,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 export function SalesPipeline() {
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "clients" | "available">("all");
   const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const debouncedSearch = useDebounce(search, 300);
@@ -24,6 +25,7 @@ export function SalesPipeline() {
       ? {
           search: debouncedSearch,
           status: activeTab as "all" | "prospect" | "initial_contact" | "negotiation" | "verbal_agreement" | "converted" | "lost" | "out_of_target",
+          filter,
           sortOrder,
           pageSize: itemsPerPage,
         }
@@ -44,6 +46,8 @@ export function SalesPipeline() {
           <PipelineFilters
             search={search}
             setSearch={setSearch}
+            filter={filter}
+            setFilter={setFilter}
             sortOrder={sortOrder}
             setSortOrder={setSortOrder}
             itemsPerPage={itemsPerPage}
@@ -53,7 +57,7 @@ export function SalesPipeline() {
         </div>
 
         <div className="flex flex-col gap-2 min-w-0">
-          <PipelineTable clients={results} isLoading={isLoading} itemsPerPage={itemsPerPage} />
+          <PipelineTable clients={results} isLoading={isLoading} itemsPerPage={itemsPerPage} filter={filter} />
 
           <PipelinePagination
             status={status}

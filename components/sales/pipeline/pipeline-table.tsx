@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getPipelineStatusColor, getPipelinePriorityColor } from "@/components/sales/lib/helpers";
-import { Building2, MoreVertical, Mail, Phone } from "lucide-react";
+import { Building2, MoreVertical, Mail, Phone, LayoutDashboard } from "lucide-react";
 import { ROLE_LABELS } from "@/lib/auth/roles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import { api } from "@/convex/_generated/api";
 import { PipelineClientDetailsDialog } from "./pipeline-client-details-dialog";
+import { PipelineCrmSheet } from "./pipeline-crm-sheet";
 import { EditProspectDialog } from "./edit-lead-dialog";
 import { DeleteProspectDialog } from "./delete-prospect-dialog";
 import { PipelineBulkActions } from "./pipeline-bulk-actions";
@@ -34,6 +34,7 @@ interface PipelineTableProps {
   clients: typeof api.sales.pipeline.queries.getPipeline._returnType["page"];
   isLoading: boolean;
   itemsPerPage: number;
+  filter: "all" | "clients" | "available";
 }
 
 const COL_CLASSES = "flex items-center px-3 py-3";
@@ -47,15 +48,17 @@ const COLS = {
   status:   "w-36 shrink-0",
   priority: "w-36 shrink-0",
   sales:    "w-40 shrink-0",
-  action:   "w-16 shrink-0 justify-center",
+  action:   "w-20 shrink-0 justify-center",
 };
 
-export function PipelineTable({ clients, isLoading, itemsPerPage }: PipelineTableProps) {
+export function PipelineTable({ clients, isLoading, itemsPerPage, filter }: PipelineTableProps) {
   const [selectedClient, setSelectedClient] = useState<typeof clients[0] | null>(null);
   const [clientToEdit, setClientToEdit] = useState<typeof clients[0] | null>(null);
   const [clientToDelete, setClientToDelete] = useState<typeof clients[0] | null>(null);
+  const [crmClientId, setCrmClientId] = useState<Id<"clients"> | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<Id<"clients">>>(new Set());
   const user = useUser();
+  const crmClient = crmClientId ? clients.find((c) => c._id === crmClientId) ?? null : null;
 
   const toggleSelectAll = () => {
     setSelectedIds(
@@ -274,7 +277,17 @@ export function PipelineTable({ clients, isLoading, itemsPerPage }: PipelineTabl
                 </div>
 
                 {/* Action */}
-                <div className={cn(COL_CLASSES, COLS.action)}>
+                <div className={cn(COL_CLASSES, COLS.action, "gap-0.5")}>
+                  {filter === "clients" && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-lg"
+                      onClick={() => setCrmClientId(client._id)}
+                    >
+                      <LayoutDashboard className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
@@ -345,6 +358,12 @@ export function PipelineTable({ clients, isLoading, itemsPerPage }: PipelineTabl
         onBatchUpdateSuccess={() => setSelectedIds(new Set())}
         onBatchDeleteSuccess={() => setSelectedIds(new Set())}
         userRole={user?.role}
+      />
+
+      <PipelineCrmSheet
+        client={crmClient}
+        open={!!crmClientId}
+        onOpenChange={(open) => !open && setCrmClientId(null)}
       />
     </div>
   );

@@ -227,6 +227,8 @@ export default defineSchema({
     features: v.array(v.string()),
     salesPersonId: v.string(),
     paidInFull: v.optional(v.boolean()),
+    initialPaymentAt: v.optional(v.number()),
+    lastPaymentAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

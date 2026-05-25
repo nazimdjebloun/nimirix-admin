@@ -33,6 +33,7 @@ const clientDocValidator = v.object({
   phone: v.optional(v.string()),
   secondaryPhone: v.optional(v.string()),
   address: v.optional(v.string()),
+  projectIds: v.optional(v.array(v.id("projects"))),
   contact: v.string(),
   contactPhone: v.optional(v.string()),
   contactEmail: v.optional(v.string()),
@@ -68,6 +69,7 @@ export const getPipeline = query({
     paginationOpts: paginationOptsValidator,
     search: v.optional(v.string()),
     status: v.optional(v.union(clientStatusValidator, v.literal("all"))),
+    filter: v.optional(v.union(v.literal("all"), v.literal("clients"), v.literal("available"))),
     sortOrder: v.optional(v.union(v.literal("latest"), v.literal("oldest"))),
     pageSize: v.optional(v.number()),
   },
@@ -79,43 +81,60 @@ export const getPipeline = query({
     splitCursor: v.optional(v.union(v.string(), v.null())),
   }),
   handler: async (ctx, args) => {
-    // Get full user with role
-    await requireRoles(ctx, ["admin", "sales", "leadSales"]);
+    const currentUser = await requireRoles(ctx, ["admin", "sales", "leadSales"]);
 
-    const { search, status, sortOrder = "latest" } = args;
+    const { search, status, filter, sortOrder = "latest" } = args;
     const activeStatus = (status && status !== "all") ? status : null;
 
-    // PATH 1: Search — use search index, apply status filter in JS (unavoidable with search)
-    // PATH 2: Status tab set — use by_status index for proper DB-level pagination
-    // PATH 3: All — use by_is_active index
+    const requireAvailableFilter = filter === "available";
+    const requireClientsFilter = filter === "clients";
+
     const paginatedResults = search
       ? await ctx.db
           .query("clients")
           .withSearchIndex("search_company", (q) => q.search("companyName", search))
           .paginate(args.paginationOpts)
-      : activeStatus
-      ? await ctx.db
-          .query("clients")
-          .withIndex("by_status", (q) => q.eq("status", activeStatus))
-          .order(sortOrder === "latest" ? "desc" : "asc")
-          .paginate(args.paginationOpts)
-      : await ctx.db
-          .query("clients")
-          .withIndex("by_is_active", (q) => q.eq("isActive", true))
-          .filter((q) => 
-            q.and(
-              q.neq(q.field("status"), "lost"),
-              q.neq(q.field("status"), "out_of_target"),
-              q.neq(q.field("status"), "converted")
-            )
-          )
-          .order(sortOrder === "latest" ? "desc" : "asc")
-          .paginate(args.paginationOpts);
+      : requireClientsFilter && !activeStatus
+        ? await ctx.db
+            .query("clients")
+            .withIndex("by_sales_person", (q) => q.eq("salesPersonId", currentUser._id))
+            .order(sortOrder === "latest" ? "desc" : "asc")
+            .paginate(args.paginationOpts)
+        : await (async () => {
+            const useStatusIndex = !!activeStatus;
+            let q = useStatusIndex
+              ? ctx.db.query("clients").withIndex("by_status", (qb) => qb.eq("status", activeStatus))
+              : ctx.db
+                  .query("clients")
+                  .withIndex("by_is_active", (qb) => qb.eq("isActive", true))
+                  .filter((qb) =>
+                    qb.and(
+                      qb.neq(qb.field("status"), "lost"),
+                      qb.neq(qb.field("status"), "out_of_target"),
+                      qb.neq(qb.field("status"), "converted")
+                    )
+                  );
 
-    // When searching, still apply status filter in JS (search index limitation)
-    const filtered = (search && activeStatus)
-      ? paginatedResults.page.filter((c) => c.status === activeStatus)
-      : paginatedResults.page;
+            if (requireClientsFilter) {
+              q = q.filter((qb) => qb.eq(qb.field("salesPersonId"), currentUser._id));
+            } else if (requireAvailableFilter) {
+              q = q.filter((qb) => qb.eq(qb.field("salesPersonId"), undefined));
+            }
+
+            return q.order(sortOrder === "latest" ? "desc" : "asc").paginate(args.paginationOpts);
+          })();
+
+    // When searching, still apply status + ownership/availability filter in JS (search index limitation)
+    let filtered = paginatedResults.page;
+    if (search && activeStatus) {
+      filtered = filtered.filter((c) => c.status === activeStatus);
+    }
+    if (search && requireClientsFilter) {
+      filtered = filtered.filter((c) => c.salesPersonId === currentUser._id);
+    }
+    if (search && requireAvailableFilter) {
+      filtered = filtered.filter((c) => !c.salesPersonId);
+    }
 
     // Join: fetch sales person name + role from the user table using batch loading
     const allUserIds: string[] = [];
