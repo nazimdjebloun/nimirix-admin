@@ -34,6 +34,12 @@ export const paymentMethodValidator = v.union(
   v.literal("card")
 )
 
+export const billingStateValidator = v.union(
+  v.literal("unpaid"),
+  v.literal("partially_paid"),
+  v.literal("paid_in_full")
+)
+
 export const projectStatusValidator = v.union(
   v.literal("pending_initial_payment"),
   v.literal("pending"),
@@ -259,6 +265,55 @@ export default defineSchema({
     .index("by_client", ["clientId"])
     .index("by_client_payment_date", ["clientId", "paymentDate"])
     .index("by_payment_date", ["paymentDate"]),
+
+  clientBillingSummaries: defineTable({
+    clientId: v.id("clients"),
+    companyName: v.string(),
+    totalProjectValue: v.number(),
+    totalPaid: v.number(),
+    outstandingBalance: v.number(),
+    hasOutstandingBalance: v.boolean(),
+    totalProjects: v.number(),
+    completedProjects: v.number(),
+    ongoingProjects: v.number(),
+    paidProjects: v.number(),
+    partiallyPaidProjects: v.number(),
+    unpaidProjects: v.number(),
+    lastPaymentAt: v.optional(v.number()),
+    billingState: billingStateValidator,
+    updatedAt: v.number(),
+  })
+    .index("by_client", ["clientId"])
+    .index("by_company_name", ["companyName"])
+    .index("by_outstanding_balance", ["outstandingBalance"])
+    .index("by_last_payment_at", ["lastPaymentAt"])
+    .index("by_has_outstanding_balance_company_name", [
+      "hasOutstandingBalance",
+      "companyName",
+    ])
+    .index("by_has_outstanding_balance_outstanding_balance", [
+      "hasOutstandingBalance",
+      "outstandingBalance",
+    ])
+    .index("by_has_outstanding_balance_last_payment_at", [
+      "hasOutstandingBalance",
+      "lastPaymentAt",
+    ])
+    .index("by_billing_state_outstanding_balance", [
+      "billingState",
+      "outstandingBalance",
+    ])
+    .index("by_billing_state_last_payment_at", [
+      "billingState",
+      "lastPaymentAt",
+    ])
+    .index("by_billing_state_company_name", [
+      "billingState",
+      "companyName",
+    ])
+    .searchIndex("search_company", {
+      searchField: "companyName",
+    }),
 
   clientCollaborators: defineTable({
     clientId: v.id("clients"),

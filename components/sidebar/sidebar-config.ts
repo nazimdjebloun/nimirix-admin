@@ -26,7 +26,7 @@ export const sidebarGroups: SidebarGroup[] = [
       { label: "Master Admin Overview", icon: Activity,       href: access.adminCentral.route,         roles: [...access.adminCentral.roles] },
       { label: "User Management",        icon: UserCog,       href: access.adminUsers.route,            roles: [...access.adminUsers.roles] },
       { label: "System Settings",        icon: Settings,      href: access.adminSettings.route,         roles: [...access.adminSettings.roles] },
-      { label: "Invoices",               icon: Receipt,       href: access.adminInvoices.route,         roles: [...access.adminInvoices.roles] },
+      { label: "Billing / Payments",     icon: Receipt,       href: access.adminPayements.route,       roles: [...access.adminPayements.roles] },
     ],
   },
   {

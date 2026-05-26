@@ -8,8 +8,9 @@
  * @module
  */
 
-import type * as admin_invoices_mutations from "../admin/invoices/mutations.js";
-import type * as admin_invoices_queries from "../admin/invoices/queries.js";
+import type * as admin_payements_mutations from "../admin/payements/mutations.js";
+import type * as admin_payements_queries from "../admin/payements/queries.js";
+import type * as admin_payements_syncBillingSummary from "../admin/payements/syncBillingSummary.js";
 import type * as auth from "../auth.js";
 import type * as email from "../email.js";
 import type * as http from "../http.js";
@@ -39,8 +40,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  "admin/invoices/mutations": typeof admin_invoices_mutations;
-  "admin/invoices/queries": typeof admin_invoices_queries;
+  "admin/payements/mutations": typeof admin_payements_mutations;
+  "admin/payements/queries": typeof admin_payements_queries;
+  "admin/payements/syncBillingSummary": typeof admin_payements_syncBillingSummary;
   auth: typeof auth;
   email: typeof email;
   http: typeof http;

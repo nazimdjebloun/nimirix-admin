@@ -15,3 +15,8 @@ export {
   getPaymentStatusColor,
   getPaymentStatusLabel,
 } from "./payment-status"
+export {
+  getBillingStatusStyles,
+  getBillingStatusColor,
+  getBillingStatusLabel,
+} from "./billing-status"

@@ -6,7 +6,7 @@
     adminCentral:                              { route: "/central",                    roles: ["admin"] },
     adminUsers:                              { route: "/users",                        roles: ["admin"] },
     adminSettings:                          { route: "/settings",                    roles: ["admin"] },
-    adminInvoices:                          { route: "/invoices",                    roles: ["admin"] },
+    adminPayements:                        { route: "/payements",                  roles: ["admin"] },
     // Sales
     adminSalesDashboard:             { route: "/sales/admin-dashboard",            roles: ["leadSales", "admin"] },
     salesDashboard:                       { route: "/sales/dashboard",                         roles: ["sales", "leadSales", "admin"] },

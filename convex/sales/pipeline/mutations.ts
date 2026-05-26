@@ -5,6 +5,7 @@ import { mutation } from "../../_generated/server";
 import { clientStatusValidator, pipelinePriorityValidator } from "../../schema";
 import { Doc } from "../../_generated/dataModel";
 import { aggregatePipeline, aggregatePipelineBySalesPerson } from "../aggregates";
+import { syncBillingSummary } from "../../admin/payements/syncBillingSummary";
 
 export const createClient = mutation({
   args: {
@@ -143,6 +144,7 @@ export const updateClient = mutation({
     const newDoc = await ctx.db.get(clientId);
     await aggregatePipeline.replace(ctx, existingClient, newDoc!);
     await aggregatePipelineBySalesPerson.replace(ctx, existingClient, newDoc!);
+    await syncBillingSummary(ctx, clientId);
   },
 });
 
@@ -154,6 +156,7 @@ export const deleteClient = mutation({
     if (oldDoc) {
       await aggregatePipeline.delete(ctx, oldDoc);
       await aggregatePipelineBySalesPerson.delete(ctx, oldDoc);
+      await syncBillingSummary(ctx, args.clientId);
     }
     return { success: true };
   },
@@ -170,6 +173,7 @@ export const batchDeleteClients = mutation({
       if (oldDoc) {
         await aggregatePipeline.delete(ctx, oldDoc);
         await aggregatePipelineBySalesPerson.delete(ctx, oldDoc);
+        await syncBillingSummary(ctx, id);
       }
     }
     return { success: true };

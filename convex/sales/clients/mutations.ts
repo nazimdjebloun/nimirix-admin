@@ -4,6 +4,7 @@ import { requireRoles } from "@/convex/users";
 import { projectTypeValidator, paymentMethodValidator, projectStatusValidator } from "../../schema";
 import { MutationCtx } from "@/convex/_generated/server";
 import { Id } from "@/convex/_generated/dataModel";
+import { syncBillingSummary } from "@/convex/admin/payements/syncBillingSummary";
 
 /**
  * Helper to check if a user is allowed to mutate client data.
@@ -83,6 +84,8 @@ export const createProject = mutation({
         updatedAt: now,
       });
     }
+
+    await syncBillingSummary(ctx, args.clientId);
 
     return projectId;
   },
@@ -252,6 +255,8 @@ export const updateProject = mutation({
       features: args.features,
       updatedAt: now,
     });
+
+    await syncBillingSummary(ctx, project.clientId);
   },
 });
 
@@ -283,5 +288,7 @@ export const deleteProject = mutation({
     }
 
     await ctx.db.delete(args.projectId);
+
+    await syncBillingSummary(ctx, project.clientId);
   },
 });
