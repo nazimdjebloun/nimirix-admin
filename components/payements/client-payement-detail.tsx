@@ -44,7 +44,7 @@ export function ClientPayementDetail({ clientId }: ClientPayementDetailProps) {
   const { client } = clientData
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pb-12 md:px-0">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 pb-12 md:px-0">
       <div className="flex flex-col gap-3">
         <Link
           href="/payements"

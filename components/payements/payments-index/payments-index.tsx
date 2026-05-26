@@ -48,7 +48,7 @@ export function PaymentsIndex() {
   )
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pb-12 pt-6 md:px-0">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 pt-6 pb-12 md:px-0">
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2.5">
           <Receipt className="h-6 w-6 text-primary" />
